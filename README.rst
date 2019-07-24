@@ -15,93 +15,33 @@ Dependencies:
 
 2. Declare the requirements of your app in requirements.txt::
 
-    $ pip install bottle
+    Flask==0.9
+    Jinja2==2.6
+    Werkzeug==0.8.3
+    gunicorn==0.17.2
 
-3. Say Hello to the World in ``app.py``::
+3. Create your python app ``hello.py``::
 
-    import os
-    from bottle import route, run
+    from flask import Flask
 
-    @route('/hello/:name')
-    def index(name='World'):
-        return '<b>Hello %s!</b>' % name
+    app = Flask(__name__)
 
-Simple enough.
+    @app.route('/')
+    def hello():
+       return 'Hello World!'
 
-Now, we need to serve our app locally. On Heroku, your application's port is available
-as an `environment variable <http://en.wikipedia.org/wiki/Environment_variable>`_.
+4. Procfile::
+    web: gunicorn hello:app
 
-So, we can grab the port we need to run it on Heroku, and default when that's not defined (locally)::
-
-    # Get required port, default to 5000.
-    port = os.environ.get('PORT', 5000)
-
-And, we can bind to the port::
-
-    # Run the app.
-    run(host='0.0.0.0', port=port)
-
-
-Act II: Try.
+Deploy:
 ------------
 
-Let's run the app locally::
-
-    $ python app.py
-    Bottle server starting up (using WSGIRefServer())...
-    Listening on http://0.0.0.0:5000/
-    Hit Ctrl-C to quit.
-
-Now you can hit the app and play around with it::
-
-    $ curl http://0.0.0.0:5000/hello/kitty
-    <b>Hello kitty!</b>
-
-
-Act III: Deploy.
-----------------
-
-In the project directory, create a new file named ``Procfile``.
-This `specifies the processes that comprise your app <http://devcenter.heroku.com/articles/procfile>`_.
-
-Our ``Procfile`` will look like this::
-
-    web: python app.py
-
-You can now test this out locally with the `foreman <http://ddollar.github.com/foreman/>`_ command (included in the toolbelt)::
-
-    $ foreman start
-    18:04:25 web.1     | started with pid 21350
-    18:04:25 web.1     | Bottle server starting up (using WSGIRefServer())...
-    18:04:25 web.1     | Listening on http://0.0.0.0:5000/
-    18:04:25 web.1     | Hit Ctrl-C to quit.
-
-It works! Let's push this app up to Heroku.
-
-We also need to tell Heroku what our app needs to run.::
-
-    $ pip freeze > requirements.txt
-
-Your app needs to be in a `Git <http://git-scm.com/>`_ repo. If it isn't already,
-you can do this easily::
-
+Navigate to your project folder. Add your files to git:: 
     $ git init
     $ git add .
-    $ git commit -m "Created app."
+    $ git commit -m "Deploying app."
 
-Now, we can create a new heroku app to push this to::
+Push the app to remote ::
 
-    $ heroku create --stack cedar
-    Creating simple-warrior-3414... done, stack is cedar
-    http://simple-warrior-3414.herokuapp.com/ | git@heroku.com:simple-warrior-3414.git
-    Git remote heroku added
-
-Let's push it up! ::
-
+    $ heroku git:remote -a <your heroku app>
     $ git push heroku master
-    ...
-    $ curl http://simple-warrior-3414.herokuapp.com/hello/kitty
-    <b>Hello kitty!</b>
-
-\\o/
-
